@@ -2,7 +2,7 @@ version: "3.7"
 services:
   server:
     restart: always
-    image: spg-registry.cn-hangzhou.cr.aliyuncs.com/spg/openspg-server:latest
+    image: spg-registry.${ALIYUNCS_REGION:?error}.cr.aliyuncs.com/spg/openspg-server:latest
     container_name: release-openspg-server
     ports:
       - "8887:8887"
@@ -31,10 +31,11 @@ services:
 
   mysql:
     restart: always
-    image: spg-registry.cn-hangzhou.cr.aliyuncs.com/spg/openspg-mysql:latest
+    image: spg-registry.${ALIYUNCS_REGION:?error}.cr.aliyuncs.com/spg/openspg-mysql:latest
     container_name: release-openspg-mysql
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - ${OPENSPG_HOME:?error}/mysql/data:/var/lib/mysql
     environment:
       TZ: Asia/Shanghai
       LANG: C.UTF-8
@@ -49,7 +50,7 @@ services:
 
   neo4j:
     restart: always
-    image: spg-registry.cn-hangzhou.cr.aliyuncs.com/spg/openspg-neo4j:latest
+    image: spg-registry.${ALIYUNCS_REGION:?error}.cr.aliyuncs.com/spg/openspg-neo4j:latest
     container_name: release-openspg-neo4j
     ports:
       - "7474:7474"
@@ -67,10 +68,11 @@ services:
       - NEO4J_dbms_security_procedures_allowlist=*
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - $HOME/dozerdb/logs:/logs
+      - ${OPENSPG_HOME:?error}/dozerdb/logs:/logs
+      - ${OPENSPG_HOME:?error}/neo4j/data:/data
 
   minio:
-    image: spg-registry.cn-hangzhou.cr.aliyuncs.com/spg/openspg-minio:latest
+    image: spg-registry.${ALIYUNCS_REGION:?error}.cr.aliyuncs.com/spg/openspg-minio:latest
     container_name: release-openspg-minio
     command: server --console-address ":9001" /data
     restart: always
@@ -83,3 +85,4 @@ services:
       - 9001:9001
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - ${OPENSPG_HOME:?error}/minio/data:/data
