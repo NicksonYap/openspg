@@ -86,3 +86,28 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${OPENSPG_HOME:?error}/minio/data:/data
+      
+  ollama:
+    image: docker.io/ollama/ollama:latest
+    container_name: release-openspg-ollama
+    entrypoint: # ref: https://github.com/ollama/ollama/issues/2932#issuecomment-2749194836
+      [
+        "/bin/bash",
+        "-c",
+        "ollama serve & sleep 5 && ollama pull bge-m3 && ollama pull quentinz/bge-large-zh-v1.5:f16 && ollama list && wait",
+      ]
+    volumes:
+      - ${OPENSPG_HOME:?error}/ollama/data:/root/.ollama
+    restart: always
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - TZ=Asia/Shanghai
+    ports:
+      - 7869:11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
